@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Project data
+data/raw/*
+data/interim/*
+data/processed/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Models and checkpoints
+/models/
+/checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Hugging Face cache
+.cache/
+huggingface/
+
+# Test and coverage output
+htmlcov/
+.coverage
+coverage.xml
+
+# Logs
+*.log
+logs/
+
+# PostgreSQL
+pgdata/
+
+# Temporary files
+tmp/
+temp/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artefacts
+build/
+dist/
+
+# uv
+.uv-cache/
