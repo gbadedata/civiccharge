@@ -46,7 +46,11 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          uv run --locked pytest             --cov=civiccharge             --cov-report=term-missing             --cov-report=xml             --cov-fail-under=80
+          uv run --locked pytest \
+            --cov=civiccharge \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=80
 
       - name: Lint
         run: uv run --locked ruff check .
