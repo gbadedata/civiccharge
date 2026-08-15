@@ -15,7 +15,8 @@ class ExternalPlanningDataModel(BaseModel):
     # must not break ingestion before they have been assessed.
     model_config = ConfigDict(
         extra="allow",
-        populate_by_name=True,
+        validate_by_alias=True,
+        validate_by_name=True,
     )
 
 
