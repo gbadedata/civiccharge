@@ -1,6 +1,7 @@
 import hashlib
 import os
 from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import sleep
@@ -65,12 +66,24 @@ class DownloadedArtifact(BaseModel):
     )
 
     staging_path: Path
+    retrieved_at: datetime
     attempts: int = Field(ge=1)
     status_code: int = Field(ge=200, le=299)
     byte_size: int = Field(gt=0)
     sha256: Sha256Digest
     content_type: str | None = None
     response_url: str
+
+    @field_validator("retrieved_at")
+    @classmethod
+    def normalise_retrieved_at(
+        cls,
+        value: datetime,
+    ) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("retrieved_at must be timezone-aware")
+
+        return value.astimezone(UTC)
 
 
 type DownloadExecutionResult = DownloadedArtifact | FailedAcquisitionResult
@@ -138,6 +151,7 @@ def _stream_response_to_staging(
 
         return DownloadedArtifact(
             staging_path=staging_path,
+            retrieved_at=datetime.now(UTC),
             attempts=attempts,
             status_code=response.status_code,
             byte_size=byte_size,

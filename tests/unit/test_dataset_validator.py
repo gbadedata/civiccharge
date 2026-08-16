@@ -1,4 +1,5 @@
 import hashlib
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -44,6 +45,14 @@ def _write_artifact(
 
     return DownloadedArtifact(
         staging_path=path,
+        retrieved_at=datetime(
+            2026,
+            8,
+            16,
+            12,
+            0,
+            tzinfo=UTC,
+        ),
         attempts=1,
         status_code=200,
         byte_size=len(content),

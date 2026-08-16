@@ -1,5 +1,6 @@
 import hashlib
 from collections.abc import Iterator
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -408,3 +409,51 @@ def test_partial_staging_file_is_removed_on_stream_failure(
     assert result.failure_reason == AcquisitionFailureReason.TRANSPORT_ERROR
     assert result.attempts == 1
     assert list(tmp_path.glob("*.part")) == []
+
+
+def test_download_records_timezone_aware_retrieval_time(
+    tmp_path: Path,
+) -> None:
+    def handler(
+        request: httpx.Request,
+    ) -> httpx.Response:
+        return httpx.Response(
+            200,
+            content=b"entity\n1\n",
+            request=request,
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = download_with_retries(
+            _source(),
+            tmp_path,
+            client=client,
+            retry_policy=RetryPolicy(),
+            config=_config(),
+            sleeper=lambda _: None,
+        )
+
+    assert isinstance(result, DownloadedArtifact)
+    assert result.retrieved_at.tzinfo is not None
+    assert result.retrieved_at.utcoffset() is not None
+
+
+def test_downloaded_artifact_rejects_naive_retrieval_time(
+    tmp_path: Path,
+) -> None:
+    content = b"data"
+
+    with pytest.raises(
+        ValidationError,
+        match="timezone-aware",
+    ):
+        DownloadedArtifact(
+            staging_path=tmp_path / "snapshot.csv.part",
+            retrieved_at=datetime(2026, 8, 16, 12, 0),
+            attempts=1,
+            status_code=200,
+            byte_size=len(content),
+            sha256=hashlib.sha256(content).hexdigest(),
+            content_type="text/csv",
+            response_url="https://example.org/data.csv",
+        )
